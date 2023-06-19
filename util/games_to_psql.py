@@ -12,16 +12,35 @@ def insert_games(games):
         host="localhost",
         database=os.getenv('DB_DB'),
         user=os.getenv('DB_USER'),
-        password=""
+        password=os.getenv('DB_PASSWORD')
     )
 
     cursor = conn.cursor()
 
     for game in games:
-        insert = sql.SQL("INSERT INTO games (id, created_at) VALUES (%s, %s)")
-        values = (game['id'], game['createdAt'])
+        if 'white' in game['players'] and game['players']['white']['user']['id'] == 'dillardchess':
+            player_id = game['players']['white']['user']['id']
+            player_rating = game['players']['white']['rating']
+        elif 'black' in game['players'] and game['players']['black']['user']['id'] == 'dillardchess':
+            player_id = game['players']['black']['user']['id']
+            player_rating = game['players']['black']['rating']
+        else:
+            continue
 
-        cursor.execute(insert, values)
+        insert_query = sql.SQL("""
+            INSERT INTO Games (id, created_at, status, player_id, player_rating, winner, opening)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """)
+
+        cursor.execute(insert_query, (
+            game['id'],
+            game['createdAt'],
+            game['status'],
+            player_id,
+            player_rating,
+            game.get('winner', None),
+            game['opening']['name'] if 'opening' in game else None
+        ))
 
     conn.commit()
     cursor.close()
