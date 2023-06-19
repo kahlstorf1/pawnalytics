@@ -11,6 +11,6 @@ def get_games():
 
   start = berserk.utils.to_millis(datetime(2020, 12, 8))
   end = berserk.utils.to_millis(datetime(2021, 12, 9))
-  games = client.games.export_by_player('dillardchess', since=start, until=end, max=30)
+  games = client.games.export_by_player('dillardchess', since=start, until=end, opening=True, max=30)
 
   return games
